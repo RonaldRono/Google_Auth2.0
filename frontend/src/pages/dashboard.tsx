@@ -7,6 +7,17 @@ const Dashboard: React.FC = () => {
   const { user, loading, logout } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const [transportType, setTransportType] = useState("Flight");
+  const [origin, setOrigin] = useState("");
+  const [destination, setDestination] = useState("");
+  const [date, setDate] = useState("");
+  const [bookedTicket, setBookedTicket] = useState<{ type: string, origin: string, destination: string, date: string } | null>(null);
+
+  const handleBooking = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!origin || !destination || !date) return;
+    setBookedTicket({ type: transportType, origin, destination, date });
+  };
 
   useEffect(() => {
     const theme = localStorage.getItem("theme");
@@ -39,7 +50,7 @@ const Dashboard: React.FC = () => {
       {/* Header */}
       <header className="sticky top-0 z-10 backdrop-blur-md bg-white/70 dark:bg-gray-900/70 border-b border-gray-200 dark:border-gray-800 px-8 py-4 flex justify-between items-center">
         <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-          Dashboard
+          Transport Booking
         </h1>
 
         <div className="flex items-center gap-4">
@@ -93,27 +104,85 @@ const Dashboard: React.FC = () => {
           {/* Divider */}
           <div className="my-8 h-px bg-gray-200 dark:bg-gray-800"></div>
 
-          {/* Info Grid */}
-          <div className="grid md:grid-cols-2 gap-6">
-
-            <div className="p-6 rounded-xl bg-gray-50 dark:bg-gray-800/50 hover:shadow-md transition">
-              <h3 className="text-sm text-gray-500 dark:text-gray-400 normal tracking-wide">
-                Account Status
-              </h3>
-              <p className="text-xl font-semibold mt-2 text-gray-900 dark:text-white">
-                Active
-              </p>
-            </div>
-
-            <div className="p-6 rounded-xl bg-gray-50 dark:bg-gray-800/50 hover:shadow-md transition">
-              <h3 className="text-sm text-gray-500 dark:text-gray-400 normaltracking-wide">
-                Authentication
-              </h3>
-              <p className="text-xl font-semibold mt-2 text-gray-900 dark:text-white">
-                Google OAuth 2.0
-              </p>
-            </div>
-
+          {/* Ticket Booking Form */}
+          <div className="p-8 rounded-2xl bg-gray-50 dark:bg-gray-800/50 hover:shadow-md transition">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+              Book a Ticket
+            </h3>
+            
+            {bookedTicket ? (
+              <div className="bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-xl p-6 text-center animate-fadeIn">
+                <h4 className="text-xl font-semibold text-green-800 dark:text-green-300 mb-2">Booking Confirmed!</h4>
+                <p className="text-green-700 dark:text-green-400">
+                  Your {bookedTicket.type} ticket from <strong>{bookedTicket.origin}</strong> to <strong>{bookedTicket.destination}</strong> on <strong>{bookedTicket.date}</strong> has been successfully booked.
+                </p>
+                <button 
+                  onClick={() => setBookedTicket(null)}
+                  className="mt-6 px-6 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg transition shadow-md"
+                >
+                  Book Another Ticket
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleBooking} className="grid md:grid-cols-2 gap-6">
+                <div className="col-span-1 md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Transport Type</label>
+                  <select 
+                    value={transportType}
+                    onChange={(e) => setTransportType(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                  >
+                    <option value="Flight">✈️ Flight</option>
+                    <option value="Train">🚂 Train</option>
+                    <option value="Bus">🚌 Bus</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Origin</label>
+                  <input 
+                    type="text" 
+                    required
+                    value={origin}
+                    onChange={(e) => setOrigin(e.target.value)}
+                    placeholder="E.g. New York"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Destination</label>
+                  <input 
+                    type="text" 
+                    required
+                    value={destination}
+                    onChange={(e) => setDestination(e.target.value)}
+                    placeholder="E.g. London"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                  />
+                </div>
+                
+                <div className="col-span-1 md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date</label>
+                  <input 
+                    type="date" 
+                    required
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                  />
+                </div>
+                
+                <div className="col-span-1 md:col-span-2 mt-2">
+                  <button 
+                    type="submit"
+                    className="w-full py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-semibold rounded-xl hover:bg-gray-800 dark:hover:bg-gray-200 transition shadow-lg"
+                  >
+                    Book Ticket
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
 
         </div>
